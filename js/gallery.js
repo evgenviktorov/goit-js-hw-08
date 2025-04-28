@@ -65,3 +65,69 @@ const images = [
 ];
 
 // ==============
+
+let instance;
+
+const gallery = document.querySelector('.gallery');
+
+gallery.addEventListener('click', event => {
+  event.preventDefault();
+  if (event.target.nodeName !== 'IMG') {
+    return;
+  }
+  const { source: originalImageUrl } = event.target.dataset;
+  console.log(originalImageUrl);
+  openModal(originalImageUrl);
+});
+
+function imageTemplate({ preview, original, description }) {
+  return `<li class="gallery-item">
+  <a class="gallery-link" href="${original}">
+    <img
+      class="gallery-image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    /> 
+  </a>
+</li>`;
+}
+
+function imagesTemplate(images) {
+  return images.map(imageTemplate).join('');
+}
+
+function renderGallery() {
+  gallery.innerHTML = imagesTemplate(images);
+}
+
+renderGallery();
+
+function openModal(originalImageUrl) {
+  instance = basicLightbox.create(
+    `
+    <img src="${originalImageUrl}" width="1112" height="640" alt="">
+`,
+    {
+      onShow: instance => {
+        window.addEventListener('keydown', handleCloseModal);
+      },
+
+      onClose: instance => {
+        window.removeEventListener('keydown', handleCloseModal);
+      },
+    }
+  );
+
+  instance.show();
+}
+
+function closeModal() {
+  instance.close();
+}
+
+function handleCloseModal({ code }) {
+  if (code === 'Escape') {
+    instance.close();
+  }
+}
